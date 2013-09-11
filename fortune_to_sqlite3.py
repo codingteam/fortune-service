@@ -4,7 +4,7 @@ import getopt, sys
 import sqlite3
 
 def usage():
-    print 'fortune_to_sqlite3.py [-h] [-f <fortune-path>] [-d <database-path>]'
+    print 'fortune_to_sqlite3.py [-h] -f <fortune-path> -d <database-path>'
 
 def parse_args(args):
     opts, _ = getopt.getopt(args, "hf:d:", ["help", "fortune", "database"])
