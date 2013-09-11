@@ -12,7 +12,7 @@ def get_random_fortune(db):
 
 @app.route('/api/random')
 def fortune():
-    with sqlite3.connect('./fortune.db') as db:
+    with sqlite3.connect('./fortunes.db') as db:
         return Response(json.dumps({'body': get_random_fortune(db)},
                                    sort_keys=True,
                                    indent=4,
