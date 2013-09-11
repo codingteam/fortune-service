@@ -54,6 +54,7 @@ def main():
         sys.exit(0)
 
     with sqlite3.connect(database_path) as db:
+        db.text_factory = str
         create_schema_if_needed(db)
         add_fortunes(db, read_fortunes(fortunes_path))
 
