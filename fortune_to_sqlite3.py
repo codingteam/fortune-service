@@ -33,11 +33,14 @@ def read_fortunes(fortunes_path):
                 if len(fortune) > 0]
 
 def create_schema_if_needed(db):
-    db.execute('CREATE TABLE IF NOT EXISTS fortunes (body text)')
+    db.execute('create table if not exists fortunes ('
+               'id integer not null primary key autoincrement,'
+               'body text'
+               ')')
     db.commit()
 
 def add_fortunes(db, fortunes):
-    db.executemany('INSERT INTO fortunes VALUES (?)',
+    db.executemany('insert into fortunes (body) values (?)',
                    [(fortune,) for fortune in fortunes])
     db.commit()
 
