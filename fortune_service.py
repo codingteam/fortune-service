@@ -11,15 +11,18 @@ def get_random_fortune(db):
                           'order by random() limit 1'):
         return row
 
+def fortune_response(fortune_id, fortune_body):
+    return Response(json.dumps({'id': fortune_id,
+                                'body': fortune_body},
+                               indent=4,
+                               separators=(',', ': ')),
+                    mimetype='application/json')
+
 @app.route('/api/random')
-def fortune():
+def route_api_random():
     with sqlite3.connect('./fortunes.db') as db:
         (fortune_id, fortune_body) = get_random_fortune(db)
-        return Response(json.dumps({'id': fortune_id,
-                                    'body': fortune_body},
-                                   indent=4,
-                                   separators=(',', ': ')),
-                        mimetype='application/json')
+        return fortune_response(fortune_id, fortune_body)
 
 if __name__ == '__main__':
     app.debug = True
