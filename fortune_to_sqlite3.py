@@ -1,26 +1,18 @@
 #!/usr/bin/env python
 
-import getopt, sys
+import sys
 import sqlite3
 
 def usage():
-    print 'fortune_to_sqlite3.py [-h] -f <fortune-path> -d <database-path>'
+    print 'fortune_to_sqlite3.py <fortune-path> <database-path>'
 
 def parse_args(args):
-    opts, _ = getopt.getopt(args, "hf:d:", ["help", "fortune", "database"])
-    help_needed = False
     fortune_path = None
     database_path = None
 
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            help_needed = True
-        elif o in ("-f", "--fortune"):
-            fortune_path = a
-        elif o in ("-d", "--database"):
-            database_path = a
-        else:
-            assert False, "unhandled option"
+    if len(args) >= 2:
+        fortune_path = args[0]
+        database_path = args[1]
 
     help_needed = fortune_path == None or database_path == None
 
@@ -45,12 +37,7 @@ def add_fortunes(db, fortunes):
     db.commit()
 
 def main():
-    try:
-        help_needed, fortunes_path, database_path = parse_args(sys.argv[1:])
-    except getopt.GetoptError as err:
-        print str(err)
-        usage()
-        sys.exit(2)
+    help_needed, fortunes_path, database_path = parse_args(sys.argv[1:])
 
     if help_needed:
         usage()
@@ -61,5 +48,5 @@ def main():
         create_schema_if_needed(db)
         add_fortunes(db, read_fortunes(fortunes_path))
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
