@@ -20,7 +20,7 @@ def fortune_response(fortune_id, fortune_body):
 
 @app.route('/api/random')
 def route_api_random():
-    with sqlite3.connect('./fortunes.db') as db:
+    with sqlite3.connect('/var/www/fortune_service/fortunes.db') as db:
         (fortune_id, fortune_body) = get_random_fortune(db)
         return fortune_response(fortune_id, fortune_body)
 
