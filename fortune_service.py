@@ -5,6 +5,7 @@ import sqlite3
 import json
 
 app = Flask(__name__)
+app.config.from_envvar('FORTUNE_SERVICE_CONFIG')
 
 def get_random_fortune(db):
     for row in db.execute('select id, body from fortunes '
@@ -20,10 +21,9 @@ def fortune_response(fortune_id, fortune_body):
 
 @app.route('/api/random')
 def route_api_random():
-    with sqlite3.connect('/var/www/fortune_service/fortunes.db') as db:
+    with sqlite3.connect(app.config['DATABASE']) as db:
         (fortune_id, fortune_body) = get_random_fortune(db)
         return fortune_response(fortune_id, fortune_body)
 
 if __name__ == '__main__':
-    app.debug = True
-    app.run(host='0.0.0.0');
+    app.run()
