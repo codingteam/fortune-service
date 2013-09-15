@@ -30,11 +30,6 @@ def fortune_response(fortune_id, fortune_body):
                                separators=(',', ': ')),
                     mimetype='application/json')
 
-@app.errorhandler(500)
-def internal_error(exception):
-    app.logger.exception(exception)
-    return render_template('500.html'), 500
-
 @app.route('/api/random')
 def route_api_random():
     with sqlite3.connect(app.config['DATABASE']) as db:
