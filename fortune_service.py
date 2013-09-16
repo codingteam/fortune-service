@@ -19,6 +19,7 @@ if app.debug is not True:
     app.logger.addHandler(file_handler)
 
 def get_random_fortune(db):
+    # FIXME(rexim): what if there are no fortunes at all?
     for row in db.execute('select id, body from fortunes '
                           'order by random() limit 1'):
         return row
