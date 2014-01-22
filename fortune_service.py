@@ -19,14 +19,20 @@ if app.debug is not True:
     app.logger.addHandler(file_handler)
 
 def get_random_fortune(db):
-    # FIXME(rexim): what if there are no fortunes at all?
     for row in db.execute('select id, body from fortunes '
                           'order by random() limit 1'):
         return row
 
 def fortune_response(fortune_id, fortune_body):
     return Response(json.dumps({'id': fortune_id,
-                                'body': fortune_body},
+                                'body': fortune_body,
+                                'status': 'ok'},
+                               indent=4,
+                               separators=(',', ': ')),
+                    mimetype='application/json')
+
+def not_found_response():
+    return Response(json.dumps({'status': 'not_found'},
                                indent=4,
                                separators=(',', ': ')),
                     mimetype='application/json')
@@ -34,8 +40,13 @@ def fortune_response(fortune_id, fortune_body):
 @app.route('/api/random')
 def route_api_random():
     with sqlite3.connect(app.config['DATABASE']) as db:
-        (fortune_id, fortune_body) = get_random_fortune(db)
-        return fortune_response(fortune_id, fortune_body)
+        random_fortune = get_random_fortune(db)
+        print random_fortune
+        if random_fortune != None:
+            (fortune_id, fortune_body) = random_fortune
+            return fortune_response(fortune_id, fortune_body)
+        else:
+            return not_found_response()
 
 if __name__ == '__main__':
     app.run()
