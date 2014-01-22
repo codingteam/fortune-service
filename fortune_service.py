@@ -23,19 +23,17 @@ def get_random_fortune(db):
                           'order by random() limit 1'):
         return row
 
-def fortune_response(fortune_id, fortune_body):
-    return Response(json.dumps({'id': fortune_id,
-                                'body': fortune_body,
-                                'status': 'ok'},
-                               indent=4,
-                               separators=(',', ': ')),
+def dict_as_response(dictionary):
+    return Response(json.dumps(dictionary, indent=4, separators=(',', ': ')),
                     mimetype='application/json')
 
+def fortune_response(fortune_id, fortune_body):
+    return dict_as_response({'id': fortune_id,
+                             'body': fortune_body,
+                             'status': 'ok'})
+
 def not_found_response():
-    return Response(json.dumps({'status': 'not_found'},
-                               indent=4,
-                               separators=(',', ': ')),
-                    mimetype='application/json')
+    return dict_as_response({'status': 'not_found'})
 
 @app.route('/api/random')
 def route_api_random():
