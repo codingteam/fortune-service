@@ -23,6 +23,20 @@ def get_random_fortune(db):
                           'order by random() limit 1'):
         return row
 
+def get_fortune_body_by_id(db, fortune_id):
+    cur = db.cursor()
+    cur.execute('select body from fortunes '
+                'where id = :fortune_id',
+                {'fortune_id': fortune_id})
+
+    result = cur.fetchone();
+
+    if result != None:
+        return result[0]
+    else:
+        return None
+
+
 def dict_as_response(dictionary):
     return Response(json.dumps(dictionary, indent=4, separators=(',', ': ')),
                     mimetype='application/json')
@@ -39,9 +53,20 @@ def not_found_response():
 def route_api_random():
     with sqlite3.connect(app.config['DATABASE']) as db:
         random_fortune = get_random_fortune(db)
-        print random_fortune
         if random_fortune != None:
             (fortune_id, fortune_body) = random_fortune
+            return fortune_response(fortune_id, fortune_body)
+        else:
+            return not_found_response()
+
+@app.route('/api/<int:fortune_id>')
+def route_api_fortune_by_id(fortune_id):
+    if fortune_id >= 2 ** 63:
+        return not_found_response()
+
+    with sqlite3.connect(app.config['DATABASE']) as db:
+        fortune_body = get_fortune_body_by_id(db, fortune_id)
+        if fortune_body != None:
             return fortune_response(fortune_id, fortune_body)
         else:
             return not_found_response()
