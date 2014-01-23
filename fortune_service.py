@@ -28,7 +28,7 @@ def get_random_fortune(db):
 def get_fortune_body_by_id(db, fortune_id):
     cur = db.cursor()
     cur.execute('select body from fortunes '
-                'where id = :fortune_id',
+                'where id = :fortune_id and length(body) <= 128',
                 {'fortune_id': fortune_id})
 
     result = cur.fetchone();
