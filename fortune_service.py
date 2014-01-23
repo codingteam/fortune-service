@@ -20,7 +20,9 @@ if app.debug is not True:
 
 def get_random_fortune(db):
     for row in db.execute('select id, body from fortunes '
-                          'order by random() limit 1'):
+                          'where length(body) <= 128 '
+                          'order by random() '
+                          'limit 1'):
         return row
 
 def get_fortune_body_by_id(db, fortune_id):
