@@ -19,11 +19,12 @@ if app.debug is not True:
     app.logger.addHandler(file_handler)
 
 def get_random_fortune(db):
-    for row in db.execute('select id, body from fortunes '
-                          'where length(body) <= 128 '
-                          'order by random() '
-                          'limit 1'):
-        return row
+    cur = db.cursor()
+    cur.execute('select id, body from fortunes '
+                'where length(body) <= 128 '
+                'order by random() '
+                'limit 1')
+    return cur.fetchone()
 
 def get_fortune_body_by_id(db, fortune_id):
     cur = db.cursor()
@@ -31,7 +32,7 @@ def get_fortune_body_by_id(db, fortune_id):
                 'where id = :fortune_id and length(body) <= 128',
                 {'fortune_id': fortune_id})
 
-    result = cur.fetchone();
+    result = cur.fetchone()
 
     if result != None:
         return result[0]
