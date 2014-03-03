@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
 from flask import Flask, Response
-import sqlite3
+from sqlalchemy import create_engine
+from sqlalchemy.sql import select, and_
+from sqlalchemy.sql.functions import char_length, random
+from fortune_schema import fortunes
 import json
 
 app = Flask(__name__)
@@ -18,27 +21,35 @@ if app.debug is not True:
     file_handler.setFormatter(formatter)
     app.logger.addHandler(file_handler)
 
+engine = create_engine('sqlite:///' + app.config['DATABASE'])
+
 def get_random_fortune(db):
-    cur = db.cursor()
-    cur.execute('select id, body from fortunes '
-                'where length(body) <= 128 '
-                'order by random() '
-                'limit 1')
-    return cur.fetchone()
+    s = select(
+        [fortunes.c.id, fortunes.c.body]
+    ).where(
+        char_length(fortunes.c.body) <= 128
+    ).order_by(
+        random()
+    ).limit(1)
+
+    return db.execute(s).fetchone()
 
 def get_fortune_body_by_id(db, fortune_id):
-    cur = db.cursor()
-    cur.execute('select body from fortunes '
-                'where id = :fortune_id and length(body) <= 128',
-                {'fortune_id': fortune_id})
+    s = select(
+        [fortunes.c.body]
+    ).where(
+        and_(
+            fortunes.c.id == fortune_id,
+            char_length(fortunes.c.body) <= 128
+        )
+    )
 
-    result = cur.fetchone()
+    result = db.execute(s).fetchone()
 
     if result != None:
         return result[0]
     else:
         return None
-
 
 def dict_as_response(dictionary):
     return Response(json.dumps(dictionary, indent=4, separators=(',', ': ')),
@@ -54,7 +65,7 @@ def not_found_response():
 
 @app.route('/api/random')
 def route_api_random():
-    with sqlite3.connect(app.config['DATABASE']) as db:
+    with engine.connect() as db:
         random_fortune = get_random_fortune(db)
         if random_fortune != None:
             (fortune_id, fortune_body) = random_fortune
@@ -67,7 +78,7 @@ def route_api_fortune_by_id(fortune_id):
     if fortune_id >= 2 ** 63:
         return not_found_response()
 
-    with sqlite3.connect(app.config['DATABASE']) as db:
+    with engine.connect() as db:
         fortune_body = get_fortune_body_by_id(db, fortune_id)
         if fortune_body != None:
             return fortune_response(fortune_id, fortune_body)

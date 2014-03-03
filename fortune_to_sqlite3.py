@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
-import sqlite3
+from sqlalchemy import create_engine
+import fortune_schema
 
 def usage():
     print 'fortune_to_sqlite3.py <fortune-path> <database-path>'
@@ -20,21 +22,13 @@ def parse_args(args):
 
 def read_fortunes(fortunes_path):
     with open(fortunes_path) as f:
-        return [fortune
+        return [fortune.decode('utf-8')
                 for fortune in f.read().split("\n%\n")
                 if len(fortune) > 0]
 
-def create_schema_if_needed(db):
-    db.execute('create table if not exists fortunes ('
-               'id integer not null primary key autoincrement,'
-               'body text'
-               ')')
-    db.commit()
-
 def add_fortunes(db, fortunes):
-    db.executemany('insert into fortunes (body) values (?)',
-                   [(fortune,) for fortune in fortunes])
-    db.commit()
+    db.execute(fortune_schema.fortunes.insert(),
+               [{'body': fortune} for fortune in fortunes])
 
 def main():
     help_needed, fortunes_path, database_path = parse_args(sys.argv[1:])
@@ -43,9 +37,11 @@ def main():
         usage()
         sys.exit(0)
 
-    with sqlite3.connect(database_path) as db:
-        db.text_factory = str
-        create_schema_if_needed(db)
+    engine = create_engine('sqlite:///' + database_path)
+
+    fortune_schema.metadata.create_all(engine)
+
+    with engine.connect() as db:
         add_fortunes(db, read_fortunes(fortunes_path))
 
 if __name__ == '__main__':
