@@ -3,7 +3,7 @@
 
 import sys
 from sqlalchemy import create_engine
-import fortune_schema
+from fortune import schema
 
 def usage():
     print 'fortune_to_sqlite3.py <fortune-path> <database-path>'
@@ -27,7 +27,7 @@ def read_fortunes(fortunes_path):
                 if len(fortune) > 0]
 
 def add_fortunes(db, fortunes):
-    db.execute(fortune_schema.fortunes.insert(),
+    db.execute(schema.fortunes.insert(),
                [{'body': fortune} for fortune in fortunes])
 
 def main():
@@ -39,7 +39,7 @@ def main():
 
     engine = create_engine('sqlite:///' + database_path)
 
-    fortune_schema.metadata.create_all(engine)
+    schema.metadata.create_all(engine)
 
     with engine.connect() as db:
         add_fortunes(db, read_fortunes(fortunes_path))

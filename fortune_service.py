@@ -4,7 +4,7 @@ from flask import Flask, Response
 from sqlalchemy import create_engine
 from sqlalchemy.sql import select, and_
 from sqlalchemy.sql.functions import char_length, random
-from fortune_schema import fortunes
+from fortune.schema import fortunes
 import json
 
 app = Flask(__name__)
